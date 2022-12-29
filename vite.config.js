@@ -6,6 +6,11 @@ import inject from '@rollup/plugin-inject';
 const outDir = resolve(__dirname, 'dist');
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '~bootstrap': resolve(__dirname, 'node_modules/bootstrap'),
+    },
+  },
   build: {
     outDir,
     rollupOptions: {

@@ -1,71 +1,59 @@
 // vite.config.js
-import { resolve, dirname } from 'pathe';
-import { defineConfig } from 'vite';
-import inject from '@rollup/plugin-inject';
-import { createHtmlPlugin } from 'vite-plugin-html';
+import { defineConfig } from "vite";
+import { resolve, dirname } from "pathe";
+import inject from "@rollup/plugin-inject";
+import { createHtmlPlugin } from "vite-plugin-html";
+import Inspect from "vite-plugin-inspect";
 
-const outDir = resolve(dirname, 'dist');
+const outDir = resolve(dirname(), "dist");
+const bootstrapDir = resolve(dirname(), "node_modules", "bootstrap");
 
-console.log('outDir', outDir);
+const pages = [
+  {
+    entry: "src/js/main/main.js",
+    filename: "main.html",
+    template: "main.html",
+    injectOptions: {
+      data: {
+        title: "index",
+        injectScript: `<script src="./src/js/main.js"></script>`,
+      },
+    },
+  },
+  {
+    entry: "src/js/nested/nested.js",
+    filename: "nested.html",
+    template: "nested.html",
+    injectOptions: {
+      data: {
+        title: "nested",
+        injectScript: `<script src="./src/js/nested.js"></script>`,
+      },
+    },
+  },
+];
 
 export default defineConfig({
   resolve: {
     alias: {
-      '~bootstrap': resolve(dirname, 'node_modules/bootstrap'),
+      "~bootstrap": bootstrapDir,
     },
   },
   build: {
     outDir,
+    rollupOptions: {
+      external: "",
+    },
   },
   plugins: [
+    Inspect(),
     inject({
-      $: 'jquery',
-      jQuery: 'jquery',
+      $: "jquery",
+      jQuery: "jquery",
     }),
     createHtmlPlugin({
       minify: true,
-      pages: [
-        {
-          entry: resolve(dirname, './main.js'),
-          filename: 'index.html',
-          template: resolve(dirname, 'public/index.html'),
-          injectOptions: {
-            data: {
-              title: 'index',
-              injectScript: `<script src="./inject.js"></script>`,
-            },
-            tags: [
-              {
-                injectTo: 'body-prepend',
-                tag: 'div',
-                attrs: {
-                  id: 'tag1',
-                },
-              },
-            ],
-          },
-        },
-        {
-          entry: resolve(dirname, 'nested/nested.js'),
-          filename: 'index.html',
-          template: resolve(dirname, 'public/index.html'),
-          injectOptions: {
-            data: {
-              title: 'other page',
-              injectScript: `<script src="./inject.js"></script>`,
-            },
-            tags: [
-              {
-                injectTo: 'body-prepend',
-                tag: 'div',
-                attrs: {
-                  id: 'tag2',
-                },
-              },
-            ],
-          },
-        },
-      ],
+      pages,
     }),
   ],
 });
